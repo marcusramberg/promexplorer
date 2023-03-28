@@ -1,60 +1,9 @@
 import httpclient
 import parseopt
-import strscans
-import strutils
-import tables
-import sets
+import ./metricsparser
 
-type 
-  MetricType* = enum
-    Counter = "counter"
-    Gauge = "gauge"
-    Histogram = "histogram"
-    Summary = "summary",
-    Untyped = "untyped"
-  Metric* = object
-    labels*: OrderedSet[string]
-    metricType*: MetricType
-    help*: string
 
-converter toType(s: string): MetricType = parseEnum[MetricType](s)
-
-proc parseMetrics*(content: string): Table[string, Metric] =
-
-  var
-    metrics = initTable[string, Metric]()
-    lines = content.splitLines()
-    lastMetric = ""
-    metric = ""
-    lastType = ""
-    lastDescription = ""
-    label = ""
-    value = ""
-  for line in lines:
-    if line.scanf("# TYPE $w $+", metric, lastType):
-      if metric != lastMetric:
-        lastMetric=metric
-        metrics[metric]=Metric()
-      metrics[lastMetric].metricType = toType(lastType)
-    elif line.scanf("# HELP $w $+", metric, lastDescription):
-      if metric != lastMetric:
-        lastMetric=metric
-        metrics[metric]=Metric()
-      metrics[metric].help = lastDescription
-    elif line.scanf("%w{%w=\"$+\"", metric, label, value):
-      if metric != lastMetric:
-        lastMetric=metric
-        metrics[metric]=Metric()
-      metrics[metric].labels.incl(label)
-        
-
-    else:
-      echo ""
-      echo "Unparsed line: ", line
-      echo ""
-  return metrics
-
-proc getFeed(url: string): Table[string, Metric] =
+proc getFeed(url: string): Metrics =
   var client = newHttpClient()
   try: 
     return parseMetrics(client.getContent(url))
