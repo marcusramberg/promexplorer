@@ -49,7 +49,8 @@ proc parseMetrics*(content: string): Metrics =
         if label =~ re"(.*)=(.*)":
           metrics[metric].labels.incl(matches[0])
     else:
-      echo ""
-      echo "Unparsed line: ", line
-      echo ""
+      if line.len > 0:
+        echo ""
+        echo "Unparsed line: ", line
+        echo ""
   return metrics

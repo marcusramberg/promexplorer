@@ -31,3 +31,5 @@ go_memstats_gc_sys_bytes 4.002176e+06
 # HELP go_memstats_heap_alloc_bytes Number of heap bytes allocated and still in use.
 # TYPE go_memstats_heap_alloc_bytes gauge
 go_memstats_heap_alloc_bytes 576736
+# TYPE node_uname_info gauge
+node_uname_info{domainname="(none)",machine="arm64",nodename="mbook",release="22.3.0",sysname="Darwin",version="Darwin Kernel Version 22.3.0: Mon Jan 30 20:38:37 PST 2023; root:xnu-8792.81.3~2/RELEASE_ARM64_T6000"} 1

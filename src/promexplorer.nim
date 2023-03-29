@@ -1,6 +1,7 @@
 import httpclient
 import parseopt
 import ./metricsparser
+import ./tui
 
 
 proc getFeed(url: string): Metrics =
@@ -9,6 +10,7 @@ proc getFeed(url: string): Metrics =
     return parseMetrics(client.getContent(url))
   except:
     echo "Error: ", getCurrentExceptionMsg()
+    system.quit()
   finally:
     client.close()
 
@@ -28,4 +30,4 @@ when isMainModule:
         quit()
     of cmdArgument:
       echo "Feed to explore: ", key
-      echo getFeed(key)
+      initUI(getFeed(key))
