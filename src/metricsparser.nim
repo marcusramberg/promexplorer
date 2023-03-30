@@ -1,7 +1,6 @@
 import strscans
 import strutils
 import tables
-import sets
 import re
 
 type 
@@ -12,7 +11,7 @@ type
     Summary = "summary",
     Untyped = "untyped"
   Metric* = object
-    labels*: OrderedSet[string]
+    labels*: Table[string, seq[string]]
     metricType*: MetricType
     help*: string
     value*: string
@@ -26,7 +25,6 @@ proc parseMetrics*(content: string): Metrics =
     metrics = initTable[string, Metric]()
     lines = content.splitLines()
     metric:string
-    lastMetric:string
     metricType:string
     description:string
     value:string
@@ -47,7 +45,8 @@ proc parseMetrics*(content: string): Metrics =
       metrics[metric].value=matches[2]
       for label in matches[1].split(","):
         if label =~ re"(.*)=(.*)":
-          metrics[metric].labels.incl(matches[0])
+          if not metrics[metric].labels.hasKey(matches[0]): metrics[metric].labels[matches[0]] = @[]
+          metrics[metric].labels[matches[0]].add(matches[1])
     else:
       if line.len > 0:
         echo ""
