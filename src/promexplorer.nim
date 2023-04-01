@@ -1,5 +1,6 @@
 import httpclient
 import parseopt
+import strutils
 import ./metricsparser
 import ./tui
 
@@ -7,7 +8,16 @@ import ./tui
 proc getFeed(url: string): Metrics =
   var client = newHttpClient()
   try: 
-    return parseMetrics(client.getContent(url))
+    let res = client.get(url)
+    if res.status != "200 OK":
+      echo "Error: ", res.status, res.body
+      system.quit()
+    elif not res.contentType.contains("text/plain"):
+      echo "Error: ", "Content type is ",res.contentType,", not text/plain."
+      system.quit()
+
+    return parseMetrics(res.body)
+  
   except:
     echo "Error: ", getCurrentExceptionMsg()
     system.quit()
@@ -23,11 +33,13 @@ when isMainModule:
         echo "promexplorer 0.0.1"
         quit()
       elif key == "h" or key == "help":
-        echo "promexplorer [-v|--version] [-h|--help] exporter_url"
-        quit()
+        break
       else: 
         echo "Unknown option: ", key, ". Run `promexplorer -h` for help."
         quit()
     of cmdArgument:
       echo "Feed to explore: ", key
       initUI(getFeed(key))
+      quit()
+  echo "promexplorer [-v|--version] | [-h|--help] | exporter_url"
+  echo "note: your exporter_url should include /metrics or whatever path your metrics are on."
