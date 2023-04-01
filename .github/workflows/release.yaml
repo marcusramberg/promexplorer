@@ -10,7 +10,8 @@ env:
   NIM_VERSION: 'stable'
   MAINTAINER: 'Marcus Ramberg <marcus@means.no>'
   RELEASE_FILES: promexplorer LICENSE README.*
-
+permissions:
+  contents: write
 jobs:
   build-artifact:
     runs-on: ${{ matrix.os }}
@@ -22,13 +23,25 @@ jobs:
           - macOS-latest
     steps:
       - uses: actions/checkout@v1
+      - name: Cache choosenim
+        id: cache-choosenim
+        uses: actions/cache@v3.3.1
+        with:
+          path: ~/.choosenim
+          key: ${{ runner.os }}-choosenim-${{ env.NIM_VERSION }}
+      - name: Cache nimble
+        id: cache-nimble
+        uses: actions/cache@v3.3.1
+        with:
+          path: ~/.nimble
+          key: ${{ runner.os }}-nimble-${{ hashFiles('*.nimble') }}
       - uses: jiro4989/setup-nim-action@v1
         with:
           nim-version: ${{ env.NIM_VERSION }}
       - run: nimble build -Y -d:release
       - name: Create artifact
         run: |
-          assets="${{ env.APP_NAME }}_$(echo "${{ runner.os }}" | tr '[:upper:]' '[:lower:]')"
+          assets="${{ env.APP_NAME }}-${RUNNER_OS}-${GITHUB_REF_NAME}"
           echo "$assets"
           mkdir -p "dist/$assets"
           cp -r ${{ env.RELEASE_FILES }} "dist/$assets/"
@@ -42,9 +55,9 @@ jobs:
             ls -lah *.*
           )
         shell: bash
-      - uses: actions/upload-artifact@v3.1.2
+      - uses: actions/upload-artifact@v3
         with:
-          name: artifact-${{ matrix.os }}
+          name: ${{ ENV.APP_NAME}}-${{runner.os}}
           path: |
             dist/*.tar.gz
             dist/*.zip
@@ -54,62 +67,18 @@ jobs:
     needs:
       - build-artifact
     steps:
-      - uses: actions/checkout@v1
-      - name: Create Release
-        id: create-release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
-          body: Release
-          draft: false
-          prerelease: false
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
 
-      - name: Write upload_url to file
-        run: echo '${{ steps.create-release.outputs.upload_url }}' > upload_url.txt
-
-      - uses: actions/upload-artifact@v2
-        with:
-          name: create-release
-          path: upload_url.txt
-
-  upload-release:
-    runs-on: ubuntu-latest
-    needs: create-release
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            asset_name_suffix: linux.tar.gz
-            asset_content_type: application/gzip
-          - os: windows-latest
-            asset_name_suffix: windows.zip
-            asset_content_type: application/zip
-          - os: macOS-latest
-            asset_name_suffix: macos.tar.gz
-            asset_content_type: application/gzip
-    steps:
-      - uses: actions/download-artifact@v2
-        with:
-          name: artifact-${{ matrix.os }}
-
-      - uses: actions/download-artifact@v2
-        with:
-          name: create-release
-
-      - id: vars
+      - name: What did we get?
         run: |
-          echo "::set-output name=upload_url::$(cat upload_url.txt)"
-
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
+          ls -la * */*
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            promexplorer-*/*.tar.gz
+            promexplorer-*/*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.vars.outputs.upload_url }}
-          asset_path: ${{ env.APP_NAME }}_${{ matrix.asset_name_suffix }}
-          asset_name: ${{ env.APP_NAME }}_${{ matrix.asset_name_suffix }}
-          asset_content_type: ${{ matrix.asset_content_type }}

@@ -18,7 +18,7 @@ proc getFeed(url: string): Metrics =
 
     return parseMetrics(res.body)
   
-  except:
+  except CatchableError:
     echo "Error: ", getCurrentExceptionMsg()
     system.quit()
   finally:
