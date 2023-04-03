@@ -22,7 +22,7 @@ note: your exporter_url should include /metrics or whatever path your metrics ar
 ❯ ./promexplorer http://localhost:9100/metrics
 ```
 
-![screencast](./promexplorer.gif)
+![screencast](https://github.com/marcusramberg/promexplorer/blob/main/promexplorer.gif)
 
 
 ## LICENSE
