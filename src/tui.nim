@@ -18,6 +18,23 @@ proc fillField(value: string, len: int): string =
   let filled = alignLeft(value, len, ' ')
   return filled[0..len-1]
 
+proc renderMetrics(tb: var(TerminalBuffer),
+                   metrics: seq, 
+                   pageLength: int, 
+                   pageOffset: int,
+                   pos: int): string =
+
+    var currentMetric:string
+    for i in 0..pageLength:
+      if i+pageOffset >= metrics.len:
+        tb.write(2, i+4, fillField("", 41))
+        continue
+      var metric = metrics[i+pageOffset]
+      tb.write(2, i+4, (if pos == i: fgYellow else: fgWhite), metric.fillField(41))
+      if pos == i:
+        currentMetric = metrics[i+pageOffset]
+    return currentMetric
+
 proc initUI*(results: Metrics) =
   var
     pos = 0
@@ -38,7 +55,6 @@ proc initUI*(results: Metrics) =
       pageOffset = (page-1)*pageLength
       rightWidth = terminalWidth()-50
 
-    # Must be done for every textbox
     if textBox.focus:
       if tb.handleKey(textBox, key):
         page=1
@@ -83,17 +99,10 @@ proc initUI*(results: Metrics) =
     tb.write(2, 2, "h/j/k/l - / filter ", fgYellow, "ESC", fgWhite, " to quit")
     tb.write(2, terminalHeight()-2, page.intToStr(), fgYellow, "/", fgWhite,
         maxPage.intToStr())
-    for i in 0..pageLength:
-      if i+pageOffset >= fkeys.len:
-        tb.write(2, i+4, fillField("", 41))
-        continue
-      var metric = fkeys[i+pageOffset]
-      tb.write(2, i+4, (if pos == i: fgYellow else: fgWhite), metric.fillField(41))
-      if pos == i:
-        currentMetric = fkeys[i+pageOffset]
-    let res = results[currentMetric]
+    currentMetric=tb.renderMetrics(fkeys,pageLength, pageOffset,pos)
     tb.write(47, 1, fgGreen, currentMetric.fillField(rightWidth))
     tb.drawHorizLine(47, terminalWidth()-4, 2, doubleStyle = true)
+    let res = results[currentMetric]
     tb.write(47, 3, fgWhite, "Last: ", fgCyan, res.value.fillField(rightWidth-6))
     tb.write(47, 4, fgWhite, "Type: ", fgCyan, fillField($res.metricType, rightWidth-6))
     tb.write(47, 5, fgWhite, "Help: ", fgCyan, fillField($res.help, rightWidth-6))
@@ -112,6 +121,7 @@ proc initUI*(results: Metrics) =
     var ev: Events
     let coords = getMouse()
     ev = tb.dispatch(textBox, coords)
+    # Only show search while in focus
     if textBox.focus:
       tb.render(textBox)
 
