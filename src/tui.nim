@@ -35,13 +35,14 @@ proc initUI*(results: Metrics) =
     var
       key = getKey()
       pageLength = terminalHeight()-7
-      maxPage = keys.len.ceilDiv pageLength
       pageOffset = (page-1)*pageLength
       rightWidth = terminalWidth()-50
 
     # Must be done for every textbox
     if textBox.focus:
       if tb.handleKey(textBox, key):
+        page=1
+        pos=0
         textBox.focus = false
       key.setKeyAsHandled() # If the key input was handled by the textbox
     var fkeys = keys
@@ -49,6 +50,8 @@ proc initUI*(results: Metrics) =
       fkeys = collect(newSeq):
         for i, d in keys:
           if d.contains(textBox.text): d
+
+    var maxPage = fKeys.len.ceilDiv pageLength
 
     case key
     of Key.None: discard
