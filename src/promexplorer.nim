@@ -7,17 +7,17 @@ import ./tui
 
 proc getFeed(url: string): Metrics =
   var client = newHttpClient()
-  try: 
+  try:
     let res = client.get(url)
     if res.status != "200 OK":
       echo "Error: ", res.status, res.body
       system.quit()
     elif not res.contentType.contains("text/plain"):
-      echo "Error: ", "Content type is ",res.contentType,", not text/plain."
+      echo "Error: ", "Content type is ", res.contentType, ", not text/plain."
       system.quit()
 
     return parseMetrics(res.body)
-  
+
   except CatchableError:
     echo "Error: ", getCurrentExceptionMsg()
     system.quit()
@@ -34,7 +34,7 @@ when isMainModule:
         quit()
       elif key == "h" or key == "help":
         break
-      else: 
+      else:
         echo "Unknown option: ", key, ". Run `promexplorer -h` for help."
         quit()
     of cmdArgument:
