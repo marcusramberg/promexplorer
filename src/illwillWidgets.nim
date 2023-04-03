@@ -343,12 +343,12 @@ proc element*(wid: var ChooseBox): string =
   if wid.filter.len == 0:
     try:
       return wid.elements[wid.choosenidx]
-    except:
+    except CatchableError:
       return ""
   else:
     try:
       return wid.filterElements()[wid.choosenidx]
-    except:
+    except CatchableError:
       return ""
 
 proc clear(tb: var TerminalBuffer, wid: var ChooseBox) {.inline.} =
@@ -496,7 +496,7 @@ proc handleKey*(tb: var TerminalBuffer, wid: var TextBox, key: Key): bool {.disc
     try:
       delete(wid.text, wid.caretIdx-1..wid.caretIdx-1)
       decCaret
-    except:
+    except CatchableError:
       discard
   of Right:
     incCaret
