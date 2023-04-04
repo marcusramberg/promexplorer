@@ -1,10 +1,15 @@
-##  (2023-04-03)
+##0.0.3 (2023-04-04)
 
+* refactor: complete breaking up tui, use pager ([15210d2](https://github.com/marcusramberg/promexplorer/commit/15210d2))
 * refactor: Move the metrics list to a separate function ([065d9fc](https://github.com/marcusramberg/promexplorer/commit/065d9fc))
+* refactor: rename for consistency ([adae5a6](https://github.com/marcusramberg/promexplorer/commit/adae5a6))
+* refactor: simplify pager variable names ([a1bbb0a](https://github.com/marcusramberg/promexplorer/commit/a1bbb0a))
+* tests: Add some pager tests ([f9815fc](https://github.com/marcusramberg/promexplorer/commit/f9815fc))
+* fix: Fix some deprecation warnings ([7772764](https://github.com/marcusramberg/promexplorer/commit/7772764))
+* fix: refactor pager into a pager type ([85f83d7](https://github.com/marcusramberg/promexplorer/commit/85f83d7))
 * fix: Try to fix gif so it autoplays ([5277112](https://github.com/marcusramberg/promexplorer/commit/5277112))
+* chore: Update changelog using conventional-changelog-cli ([4a72e99](https://github.com/marcusramberg/promexplorer/commit/4a72e99))
 * docs: Update README with more details ([9de5ebe](https://github.com/marcusramberg/promexplorer/commit/9de5ebe))
-
-
 
 ## <small>0.0.2 (2023-04-03)</small>
 
