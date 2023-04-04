@@ -1,24 +1,18 @@
+import ./illwillWidgets.nim
 import ./metricsparser
+import ./pager
+import algorithm
 import illwill
 import os
 import std/sequtils
 import std/strutils
-import algorithm
-import tables
-import math
-import ./illwillWidgets.nim
 import sugar
+import tables
 
 proc exitProc() {.noconv.} =
   illwillDeinit()
   showCursor()
   quit(0)
-
-type MetricsPager = object
-  page: int
-  pos: int
-  length: int
-  offset: int
 
 
 proc fillField(value: string, len: int): string =
@@ -37,12 +31,39 @@ proc renderMetrics(tb: var(TerminalBuffer), metrics:seq, pager: MetricsPager): s
         currentMetric = metrics[i+pager.offset]
     return currentMetric
 
+proc renderMetric(tb: var(TerminalBuffer), metricName: string, metric: Metric, width:int) =
+  tb.write(47, 1, fgGreen, metricName.fillField(width))
+  tb.drawHorizLine(47, terminalWidth()-4, 2, doubleStyle = true)
+  if metricName != "":
+    tb.write(47, 3, fgWhite, "Last: ", fgCyan, metric.value.fillField(width-6))
+    tb.write(47, 4, fgWhite, "Type: ", fgCyan, fillField($metric.metricType, width-6))
+    tb.write(47, 5, fgWhite, "Help: ", fgCyan, fillField($metric.help, width-6))
+    tb.write(47, 6, fgWhite, "Labels: ")
+    var labelPos = 8
+    tb.drawHorizLine(47, terminalWidth()-4, 7)
+    let labels = toSeq(metric.labels.keys).sorted
+    for i in 0..10:
+      if len(labels) > i:
+        let label = labels[i]
+        tb.write(47, labelPos+i, fgWhite, fillField(label&": "&metric.labels[
+            label].join(", "), width))
+      else:
+        tb.write(47, labelPos+i, fillField("", width))
+
+proc drawUI(tb : var(TerminalBuffer), searchBox: TextBox, pager: MetricsPager) =
+    tb.setForegroundColor(fgBlack, true)
+    tb.drawRect(0, 0, 44, terminalHeight()-2)
+    tb.drawRect(45, 0, terminalWidth()-2, terminalHeight()-2)
+    tb.drawHorizLine(2, 28, 3, doubleStyle = true)
+    tb.write(2, 1, fgWhite, fillField( (
+      if searchBox.text != "": "Metrics ("&searchBox.text&")"
+    else: "Metrics"), 40))
+    tb.write(2, 2, "h/j/k/l - / filter ", fgYellow, "ESC", fgWhite, " to quit")
+    tb.write(2, terminalHeight()-2, $pager.page, fgYellow, "/", fgWhite, $pager.maxPage)
+
 proc initUI*(results: Metrics) =
   var
-    pager = MetricsPager(
-      page: 1,
-      pos: 0,
-    )
+    pager = MetricsPager()
     currentMetric: string
   
   illwillInit(fullscreen = true)
@@ -51,29 +72,24 @@ proc initUI*(results: Metrics) =
   var tb = newTerminalBuffer(terminalWidth(), terminalHeight())
   var keys = toSeq(results.keys).sorted
 
-  var textBox = newTextBox("", 2, 2, 30, placeholder = "")
+  var searchBox = newTextBox("", 2, 2, 30, placeholder = "")
 
   while true:
     var
       key = getKey()
       rightWidth = terminalWidth()-50
       
-    currentMetric=""
-
-    pager.length = terminalHeight()-7
-    pager.offset = (pager.page-1)*pager.length
-
-    if textBox.focus:
-      if tb.handleKey(textBox, key):
-        textBox.focus = false
+    if searchBox.focus:
+      if tb.handleKey(searchBox, key): searchBox.focus = false
       key.setKeyAsHandled() # If the key input was handled by the textbox
     var fkeys = keys
-    if textBox.text != "":
+    if searchBox.text != "":
       fkeys = collect(newSeq):
         for i, d in keys:
-          if d.contains(textBox.text): d
+          if d.contains(searchBox.text): d
 
-    var maxPage = fKeys.len.ceilDiv pager.length
+    pager.count=fKeys.len
+    pager.update(terminalHeight()-7)
 
     case key
     of Key.None: discard
@@ -81,59 +97,28 @@ proc initUI*(results: Metrics) =
     of Key.H:
       if pager.page > 1: pager.page.dec
     of Key.L:
-      if pager.page < maxPage: pager.page.inc
+      if pager.page < pager.maxPage: pager.page.inc
     of Key.K:
       if pager.pos > 0: pager.pos.dec
     of Key.J:
       if pager.pos < pager.length: pager.pos.inc
     of Key.Slash:
-      textBox.focus = true
-      pager.page=1
-      pager.pos=0
+      searchBox.focus = true
+      pager.reset()
     else:
       discard
+
     # Reset position if we're on the last page and out of bonds
-    if pager.page == maxPage and pager.pos+pager.offset >=
-        fkeys.len: pager.pos = fkeys.len-pager.offset-1
+    pager.check_bounds()
 
-    tb.setForegroundColor(fgBlack, true)
-    tb.drawRect(0, 0, 44, terminalHeight()-2)
-    tb.drawRect(45, 0, terminalWidth()-2, terminalHeight()-2)
-    tb.drawHorizLine(2, 28, 3, doubleStyle = true)
-    tb.write(2, 1, fgWhite, fillField( (
-      if textBox.text != "":
-      "Metrics ("&textBox.text&")"
-    else: "Metrics"), 40))
-    tb.write(2, 2, "h/j/k/l - / filter ", fgYellow, "ESC", fgWhite, " to quit")
-    tb.write(2, terminalHeight()-2, pager.page.intToStr(), fgYellow, "/", fgWhite,
-        maxPage.intToStr())
+    tb.drawUI(searchBox, pager)
     currentMetric=tb.renderMetrics(fkeys,pager)
-    tb.write(47, 1, fgGreen, currentMetric.fillField(rightWidth))
-    tb.drawHorizLine(47, terminalWidth()-4, 2, doubleStyle = true)
-    if currentMetric != "":
-      let res = results[currentMetric]
-      tb.write(47, 3, fgWhite, "Last: ", fgCyan, res.value.fillField(rightWidth-6))
-      tb.write(47, 4, fgWhite, "Type: ", fgCyan, fillField($res.metricType, rightWidth-6))
-      tb.write(47, 5, fgWhite, "Help: ", fgCyan, fillField($res.help, rightWidth-6))
-      tb.write(47, 6, fgWhite, "Labels: ")
-      var labelPos = 8
-      tb.drawHorizLine(47, terminalWidth()-4, 7)
-      let labels = toSeq(res.labels.keys).sorted
-      for i in 0..10:
-        if len(labels) > i:
-          let label = labels[i]
-          tb.write(47, labelPos+i, fgWhite, fillField(label&": "&res.labels[
-              label].join(", "), rightWidth))
-        else:
-          tb.write(47, labelPos+i, fillField("", rightWidth))
+    tb.renderMetric(currentMetric, results[currentMetric], rightWidth)
 
-    var ev: Events
-    let coords = getMouse()
-    ev = tb.dispatch(textBox, coords)
+    discard tb.dispatch(searchBox, getMouse())
     # Only show search while in focus
-    if textBox.focus:
-      tb.render(textBox)
+    if searchBox.focus:
+      tb.render(searchBox)
 
     tb.display()
     sleep(20)
-
