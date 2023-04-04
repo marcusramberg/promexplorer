@@ -17,8 +17,8 @@ proc exitProc() {.noconv.} =
 type MetricsPager = object
   page: int
   pos: int
-  pageLength: int
-  pageOffset: int
+  length: int
+  offset: int
 
 
 proc fillField(value: string, len: int): string =
@@ -27,14 +27,14 @@ proc fillField(value: string, len: int): string =
 
 proc renderMetrics(tb: var(TerminalBuffer), metrics:seq, pager: MetricsPager): string =
     var currentMetric:string
-    for i in 0..pager.pageLength:
-      if i+pager.pageOffset >= metrics.len:
+    for i in 0..pager.length:
+      if i+pager.offset >= metrics.len:
         tb.write(2, i+4, fillField("", 41))
         continue
-      var metric = metrics[i+pager.pageOffset]
+      var metric = metrics[i+pager.offset]
       tb.write(2, i+4, (if pager.pos == i: fgYellow else: fgWhite), metric.fillField(41))
       if pager.pos == i:
-        currentMetric = metrics[i+pager.pageOffset]
+        currentMetric = metrics[i+pager.offset]
     return currentMetric
 
 proc initUI*(results: Metrics) =
@@ -60,8 +60,8 @@ proc initUI*(results: Metrics) =
       
     currentMetric=""
 
-    pager.pageLength = terminalHeight()-7
-    pager.pageOffset = (pager.page-1)*pager.pageLength
+    pager.length = terminalHeight()-7
+    pager.offset = (pager.page-1)*pager.length
 
     if textBox.focus:
       if tb.handleKey(textBox, key):
@@ -73,7 +73,7 @@ proc initUI*(results: Metrics) =
         for i, d in keys:
           if d.contains(textBox.text): d
 
-    var maxPage = fKeys.len.ceilDiv pager.pageLength
+    var maxPage = fKeys.len.ceilDiv pager.length
 
     case key
     of Key.None: discard
@@ -85,7 +85,7 @@ proc initUI*(results: Metrics) =
     of Key.K:
       if pager.pos > 0: pager.pos.dec
     of Key.J:
-      if pager.pos < pager.pageLength: pager.pos.inc
+      if pager.pos < pager.length: pager.pos.inc
     of Key.Slash:
       textBox.focus = true
       pager.page=1
@@ -93,8 +93,8 @@ proc initUI*(results: Metrics) =
     else:
       discard
     # Reset position if we're on the last page and out of bonds
-    if pager.page == maxPage and pager.pos+pager.pageOffset >=
-        fkeys.len: pager.pos = fkeys.len-pager.pageOffset-1
+    if pager.page == maxPage and pager.pos+pager.offset >=
+        fkeys.len: pager.pos = fkeys.len-pager.offset-1
 
     tb.setForegroundColor(fgBlack, true)
     tb.drawRect(0, 0, 44, terminalHeight()-2)
