@@ -52,7 +52,7 @@ proc renderMetric(tb: var(TerminalBuffer), metricName: string, metric: Metric, w
       else:
         tb.write(47, labelPos+i, fillField("", width))
 
-proc drawUI(tb: var(TerminalBuffer), searchBox: TextBox, pager: MetricsPager) =
+proc renderUI(tb: var(TerminalBuffer), searchBox: TextBox, pager: MetricsPager) =
   tb.setForegroundColor(fgBlack, true)
   tb.drawRect(0, 0, 44, terminalHeight()-2)
   tb.drawRect(45, 0, terminalWidth()-2, terminalHeight()-2)
@@ -84,7 +84,7 @@ proc initUI*(results: Metrics) =
 
     if searchBox.focus:
       if tb.handleKey(searchBox, key): searchBox.focus = false
-      key.setKeyAsHandled() # If the key input was handled by the textbox
+      key.setKeyAsHandled() # Ignore main loop while in focus
     var fkeys = keys
     if searchBox.text != "":
       fkeys = collect(newSeq):
@@ -94,6 +94,7 @@ proc initUI*(results: Metrics) =
     pager.count = fKeys.len
     pager.setLength(terminalHeight()-7)
 
+    # Main keyboard event handler
     case key
     of Key.None: discard
     of Key.Escape, Key.Q: exitProc()
@@ -114,7 +115,7 @@ proc initUI*(results: Metrics) =
     # Reset position if we're on the last page and out of bonds
     pager.check_bounds()
 
-    tb.drawUI(searchBox, pager)
+    tb.renderUI(searchBox, pager)
     currentMetric = tb.renderMetrics(fkeys, pager)
     if currentMetric != "":
       tb.renderMetric(currentMetric, results[currentMetric], rightWidth)
