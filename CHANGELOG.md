@@ -1,4 +1,4 @@
-##0.0.3 (2023-04-04)
+## <small>0.0.3 (2023-04-04)</small>
 
 * refactor: complete breaking up tui, use pager ([15210d2](https://github.com/marcusramberg/promexplorer/commit/15210d2))
 * refactor: Move the metrics list to a separate function ([065d9fc](https://github.com/marcusramberg/promexplorer/commit/065d9fc))
