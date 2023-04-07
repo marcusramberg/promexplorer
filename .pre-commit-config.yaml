@@ -31,3 +31,9 @@ repos:
       - id: codespell
         additional_dependencies:
           - tomli
+  - repo: https://github.com/marcusramberg/pre-commit-nim
+    rev: acef50716a819f67d93e2dc029edeb64fc89b91d
+    hooks:
+      - id: nimble-check
+      - id: nim-check
+      - id: nim-pretty

@@ -52,7 +52,8 @@ proc renderMetric(tb: var(TerminalBuffer), metricName: string, metric: Metric, w
       else:
         tb.write(47, labelPos+i, fillField("", width))
 
-proc renderUI(tb: var(TerminalBuffer), searchBox: TextBox, pager: MetricsPager) =
+proc renderUI(tb: var(TerminalBuffer), searchBox: TextBox,
+    pager: MetricsPager) =
   tb.setForegroundColor(fgBlack, true)
   tb.drawRect(0, 0, 44, terminalHeight()-2)
   tb.drawRect(45, 0, terminalWidth()-2, terminalHeight()-2)

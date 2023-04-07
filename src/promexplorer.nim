@@ -1,4 +1,4 @@
-import std / [ httpclient, parseopt, strutils, uri ]
+import std / [httpclient, parseopt, strutils, uri]
 import ./metricsparser
 import ./tui
 
