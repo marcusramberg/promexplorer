@@ -12,3 +12,4 @@ bin           = @["promexplorer"]
 
 requires "nim >= 1.6.6"
 requires "illwill >= 0.3.0"
+requires "https://github.com/enthus1ast/illwillWidgets"

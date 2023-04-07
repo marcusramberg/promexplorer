@@ -1,8 +1,8 @@
-import ./illwillWidgets.nim
 import ./metricsparser
 import ./pager
 import algorithm
 import illwill
+import illwillWidgets
 import os
 import std/sequtils
 import std/strutils
