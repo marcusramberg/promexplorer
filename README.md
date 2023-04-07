@@ -16,6 +16,7 @@ the latest release and put it somewhere in your PATH.
 promexplorer [-v|--version] | [-h|--help] | exporter_url
 note: your exporter_url should include /metrics or whatever path your metrics are on.
 ```
+
 ## Usage
 
 ``` sh
@@ -24,12 +25,10 @@ note: your exporter_url should include /metrics or whatever path your metrics ar
 
 ![screencast](https://github.com/marcusramberg/promexplorer/blob/main/promexplorer.gif)
 
-
 ## LICENSE
 
 MIT License (See LICENSE for details)
 
-## Copyright 
+## Copyright
 
 2022 Marcus Ramberg
-

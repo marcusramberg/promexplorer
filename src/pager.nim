@@ -24,4 +24,3 @@ proc setLength*(this: var(MetricsPager), length: int) =
 proc reset*(this: var(MetricsPager)) =
   this.page = 1
   this.pos = 0
-

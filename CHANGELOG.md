@@ -1,3 +1,5 @@
+# Change Log
+
 ## <small>0.0.3 (2023-04-04)</small>
 
 * refactor: complete breaking up tui, use pager ([15210d2](https://github.com/marcusramberg/promexplorer/commit/15210d2))
@@ -14,11 +16,9 @@
 ## <small>0.0.2 (2023-04-03)</small>
 
 * chore: Update gif to show off new search functionality ([ee8dae4](https://github.com/marcusramberg/promexplorer/commit/ee8dae4))
-* fix: reset page after search to go avoid being on a non-existant one ([566dd41](https://github.com/marcusramberg/promexplorer/commit/566dd41))
+* fix: reset page after search to go avoid being on a non-existent one ([566dd41](https://github.com/marcusramberg/promexplorer/commit/566dd41))
 * feat: Add a simple gif screencast to show promexplorer ([5950737](https://github.com/marcusramberg/promexplorer/commit/5950737))
 * feat: Add support for filtering the feed ([307f14b](https://github.com/marcusramberg/promexplorer/commit/307f14b))
-
-
 
 ## <small>0.0.1 (2023-04-02)</small>
 
@@ -35,6 +35,3 @@
 * Initial import ([9de5111](https://github.com/marcusramberg/promexplorer/commit/9de5111))
 * refactor: Move parser to separate module, fix remaining parser issues ([524f32e](https://github.com/marcusramberg/promexplorer/commit/524f32e))
 * tests: remove dummy ([e3fe439](https://github.com/marcusramberg/promexplorer/commit/e3fe439))
-
-
-

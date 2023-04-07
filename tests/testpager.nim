@@ -11,4 +11,3 @@ test "testPager":
   pager.setLength(6)
   assert pager.offset == 6
   assert pager.maxPage == 4
-
