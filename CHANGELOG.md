@@ -1,4 +1,10 @@
-# Change Log
+## <small>0.0.4  (2023-04-08)</small>
+
+* chore: Add nim-pretty pre commit hook ([5782944](https://github.com/marcusramberg/promexplorer/commit/5782944))
+* chore: Add some pre-commit hooks
+* feat:  Add support for file urls ([18707c9](https://github.com/marcusramberg/promexplorer/commit/18707c9))
+* chore: Use illWillWidgets from nimble instead of forking ([ef189c0](https://github.com/marcusramberg/promexplorer/commit/ef189c0))
+* Update CHANGELOG.md ([f707421](https://github.com/marcusramberg/promexplorer/commit/f707421))
 
 ## <small>0.0.3 (2023-04-04)</small>
 
