@@ -8,8 +8,9 @@ type
     Counter = "counter"
     Gauge = "gauge"
     Histogram = "histogram"
-    Summary = "summary",
+    Summary = "summary"
     Untyped = "untyped"
+
   Metric* = object
     labels*: Table[string, seq[string]]
     metricType*: MetricType
