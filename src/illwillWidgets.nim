@@ -516,6 +516,10 @@ proc handleKey*(tb: var TerminalBuffer, wid: var TextBox,
     incCaret
   of Left:
     decCaret
+  of Up:
+    wid.focus = false
+  of Down:
+    wid.focus = false
   else:
     # Add ascii representation
     var ch = $key.char
