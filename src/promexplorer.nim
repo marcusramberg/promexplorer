@@ -48,5 +48,5 @@ when isMainModule:
       echo "Feed to explore: ", key
       initUI(getFeed(key))
       quit()
-  echo "promexplorer [-v|--version] | [-h|--help] | [http|file]://exporter_url"
+  echo "promexplorer [-v|--version] | [-h|--help] | [http(s)|file]://exporter_url"
   echo "note: your exporter_url should include /metrics or whatever path your metrics are on."
