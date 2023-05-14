@@ -8,7 +8,7 @@ proc getFeed(url: string): Metrics =
   var contents: string
   try:
     case uri.scheme:
-      of "http":
+      of "http", "https":
         var client = newHttpClient()
         defer: client.close()
         let res = client.get(url)
