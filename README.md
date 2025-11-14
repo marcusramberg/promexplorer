@@ -1,17 +1,17 @@
 # promexplorer
 
-A simple tool to explore prometheus exporter feeds
+A simple tool to explore Prometheus exporter feeds
 aggregates all the labels into one metric, and gives you a simple tui
 to navigate the available metrics
 
-# Installation
+## Installation
 
 Static binaries are provided for mac/linux/windows, get the appropriate one from
 the latest release and put it somewhere in your PATH.
 
 ## Help
 
-``` sh
+```sh
 ❯ ./promexplorer
 promexplorer [-v|--version] | [-h|--help] | exporter_url
 note: your exporter_url should include /metrics or whatever path your metrics are on.
@@ -19,7 +19,7 @@ note: your exporter_url should include /metrics or whatever path your metrics ar
 
 ## Usage
 
-``` sh
+```sh
 ❯ ./promexplorer http://localhost:9100/metrics
 ```
 
