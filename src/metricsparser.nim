@@ -1,7 +1,6 @@
 import strscans
 import strutils
 import tables
-import re
 
 type
   MetricType* = enum
@@ -40,15 +39,16 @@ proc parseMetrics*(content: string): Metrics =
     elif line.scanf("$w $+", metric, value):
       if not metrics.hasKey(metric): metrics[metric] = Metric()
       metrics[metric].value = value
-    elif line =~ re"^([a-zA-Z0-9_:]+)\{(.*)\} (.*)$":
-      metric = matches[0]
+    elif '{' in line and "} " in line:
+      let lb = line.find('{')
+      let rb = line.rfind("} ")
+      metric = line[0 ..< lb]
       if not metrics.hasKey(metric): metrics[metric] = Metric()
-      metrics[metric].value = matches[2]
-      for label in matches[1].split(","):
-        if label =~ re"(.*)=(.*)":
-          if not metrics[metric].labels.hasKey(matches[0]): metrics[
-              metric].labels[matches[0]] = @[]
-          metrics[metric].labels[matches[0]].add(matches[1])
+      metrics[metric].value = line[rb+2 .. ^1]
+      for label in line[lb+1 ..< rb].split(','):
+        let kv = label.split('=', maxsplit = 1)
+        if kv.len == 2:
+          metrics[metric].labels.mgetOrPut(kv[0], @[]).add(kv[1])
     else:
       if line.len > 0:
         echo ""
